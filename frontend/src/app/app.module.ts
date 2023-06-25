@@ -4,15 +4,19 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { ResultTableComponent } from './core/result-table/result-table.component';
 import { DifferenceTableComponent } from './core/difference-table/difference-table.component';
+import { AmountInputFormComponent } from './core/amount-input-form/amount-input-form.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
     ResultTableComponent,
-    DifferenceTableComponent
+    DifferenceTableComponent,
+    AmountInputFormComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    ReactiveFormsModule //this for forms
   ],
   providers: [],
   bootstrap: [AppComponent]

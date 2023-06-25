@@ -1,0 +1,25 @@
+<div class="section-content section-content-p30">
+    <div class="container-fluid">
+        <form [formGroup]="inputForm" (ngSubmit)="onSubmit()">
+
+
+            <input formControlName="amount" type="text" class="form-control mb-4 w-25" placeholder="Amount"
+                required>
+
+            <!-- VALIDATION ERROR MESSAGE -->
+            <div *ngIf="amount.invalid && (amount.dirty || amount.touched)" class="alert alert-danger">
+                <div *ngIf="amount.errors?.['required']">
+                    Required
+                </div>
+                <div *ngIf="amount.errors?.['pattern']">
+                    pattern
+                </div>
+            </div>
+
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-info col-2">Calculate</button>
+
+        </form>
+    </div>
+</div>

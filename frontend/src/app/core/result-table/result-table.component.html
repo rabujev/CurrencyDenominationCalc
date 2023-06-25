@@ -16,10 +16,12 @@
                 </thead>
             
                 <tbody>
-            <tr *ngFor="let denom of result.entries()">
+                    <!-- using |keyvalue angular pipe to transsform map into array 
+                        to not use map iterator that would cause errors  +  using slice().reverse() for correct order-->
+            <tr *ngFor="let result of (result | keyvalue).slice().reverse()">
                 
-                <td class ="align-middle">{{ denom[0] | currency:'EUR' }}</td>
-                <td class ="align-middle">{{ denom[1] }}</td>
+                <td class ="align-middle">{{ result.key | currency:'EUR' }}</td>
+                <td class ="align-middle">{{ result.value }}</td>
                 
             </tr>
             
