@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Dto } from '../common/dto';
+
 
 @Injectable({
   providedIn: 'root'
@@ -7,53 +10,97 @@ import { Subject } from 'rxjs';
 export class FormService {
 
   //this is a Subject (multicastable Observable) others can subscribe to receive its value whenever updated.
-  validAmount: Subject<number> = new Subject<number>;
-  useBackend: boolean = true; //hopefully same instance injected everywhere    
+  submittedForm: Subject<[number, boolean]> = new Subject<[number, boolean]>;
+  //useBackend: boolean = true; //hopefully same instance injected everywhere    
 
-  constructor() { }
+  constructor(private httpClient: HttpClient) { }
 
-    //Fills result Map with the amounts of notes and coins 
-    calcResult(total: number, result: Map<number, number>,
-       previousResult: Map<number, number>): Map<any, any>[]  
-    {
+  //Fills result Map with the amounts of notes and coins 
 
-      let newResult = new Map();
-      
-      if (this.useBackend) {
-        console.log("using backend calculate IF");
-        this.callBackEnd(total, result);
-        return [newResult, previousResult];
-       }
-      else {        
-        
-        let rest: number = total;
-        //for each currency denomination, calculates how many of them fit in the rest amount and fills result map
-        for (let key of result.keys()) {
-          let value: number = Math.floor(rest/key);
-          result.set(key, value);  //should modify result as a side effect 
+  updateTables(total: number, previousTotal: number | null, result: Map<number, number>,
+    previousResult: Map<number, number>,
+    useBackend: boolean,
+    difference: Map<number, string>) : void {
 
-          rest = rest%key;
+      if (useBackend) {
+        this.calcBackend(total, result, previousResult, difference);
+      } else {
+        this.calcFrontend(total, previousTotal, result, previousResult, difference);
+        // xc console.log(previousTotal);
+      }
+  }
+
+  //Gives back result + difference  Maps in an array  from backend 
+
+  calcBackend(total: number, result: Map<number, number>,
+    previousResult: Map<number, number>,
+    difference: Map<number, string>): void {
+
+      console.log("using backend");
+      let url = "http://localhost:5000";
+      let dto = new Dto(total, result, previousResult, difference);
+     
+      let response = this.httpClient.post<Dto>(url,dto).subscribe(
+        dto =>
+        {
+           result = dto.result;
+           previousResult = dto.previousResult;
+           difference = dto.difference;
         }
-        //calculating the difference
-        
+      ); 
+      
+      
+      // result = result of call . 0   etc.   so no need for return type 
+      // difference = result of call . 1
+  }
 
-        return [newResult, this.calcDifference(newResult, previousResult)];
-        
+
+  calcFrontend(total: number,previousTotal: number | null, result: Map<number, number>,
+    previousResult: Map<number, number>,
+    difference: Map<number, string>) : void  // : Map<any, any>[] lets try no return
+  {
+    previousResult = new Map(result);   //current Result becomes past result
+
+
+
+    let rest: number = total;
+    //for each currency denomination, calculates how many of them fit in the rest amount and fills result map
+    for (let key of result.keys()) {
+      let value: number = Math.floor(rest / key);
+      result.set(key, value);  //should modify result as a side effect 
+
+      rest = rest % key;
+    }
+    //calculating the difference
+    if (previousTotal != null) 
+      this.calcFrontDifference(result, previousResult, difference);
+    
+
+
+  }
+
+  calcFrontDifference(result: Map<number, number>,
+    previousResult: Map<number, number>,
+    difference: Map<number, string>) : void 
+  {
+    console.log('dd')
+    for (let key of result.keys()) {
+
+      let diff: number = result.get(key)! - previousResult.get(key)!;
+
+      if (diff > 0) {
+        difference.set(key, ('+' + diff));
+      } else if (diff < 0) {
+        difference.set(key, ('-' + diff));
+      } else if (diff == 0 && previousResult.get(key) != 0) {
+        difference.set(key, (' ' + diff)); 
+      }else if (diff == 0) {
+        difference.set(key, ('' + diff));
       }
-  
+
     }
 
-    calcDifference(result: Map<number, number>, 
-                   previousResult: Map<number, number>): Map<number, string> {
+  }
 
-      if (previousResult.size > 0) {
-  
-      }
-      return new Map<number, string>;
-    }
 
-    //gives back result + difference  Maps in an array  from backend 
-    callBackEnd(total: number, result: Map<number, number>): Map<any, any>[]  {
-      return [];
-    }
 }

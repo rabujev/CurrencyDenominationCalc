@@ -19,23 +19,26 @@ export class ResultTableComponent {
 
   //Initial Map with denoms as keys and 0 as values for now
 
-  private initialDenoms: Map<number, number> = this.denomValues.denomMap();
+  //private denoms: Map<number, number> = this.denomValues.denomMap();
   
   result: Map<number, number> = new Map(this.denomValues.denomMap());
 
-  previousResult: Map<number, number> = new Map(this.denomValues.denomMap());
+  previousResult: Map<number, number> = new Map();
+
+  previousAmount: number | null = null;
+
+  prevAmountHTML: number | null = null;
 
   difference: Map<number, string> = new Map();
 
 
 
   ngOnInit() {
-    this.formService.validAmount.subscribe( 
-      amount => { 
-       // this.result = 
-          this.formService.calcResult( amount, this.result, this.previousResult);
-      //  this.difference = 
-          this.formService.calcResult( amount, this.result, this.previousResult);
+    this.formService.submittedForm.subscribe( 
+      submitted => {
+        this.formService.updateTables( submitted[0], this.previousAmount, this.result, this.previousResult, submitted[1], this.difference);
+        this.prevAmountHTML = this.previousAmount;
+        this.previousAmount = submitted[0];
       }
     );
   }

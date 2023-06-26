@@ -1,60 +1,93 @@
-<div class="main-content">
-    <div class="section-content section-content-p30">
-        <div class="container-fluid">
-        
+<div class="container-fluid m-1"> <!-- using bootstrap grid system-->
 
 
-            <table class="table table-bordered">
+    <div class="row justify-content-start">
+        <div class="col-sm-4"> <!-- sm is for responsive for phone-->
+
+            <table class="table table-borderless w-auto">
+
+                <thead class="table">
+                    <tr>
+                        <td> Neue Stückelung </td>
+                        <td *ngIf="(previousAmount != null)"> {{previousAmount}}   €</td>
+                    </tr>
+                </thead>
+            </table>
             
+            <table class="table table-bordered w-auto">
+
                 <thead class="table-dark">
                     <tr>
                         <th> Schein/Münze </th>
                         <th> Anzahl </th>
 
-                        
+
                     </tr>
                 </thead>
-            
+
                 <tbody>
                     <!-- using |keyvalue angular pipe to transsform map into array 
-                        to not use map iterator that would cause errors  +  using slice().reverse() for correct order-->
-            <tr *ngFor="let result of (result | keyvalue).slice().reverse()">
-                
-                <td class ="align-middle">{{ result.key | currency:'EUR' }}</td>
-                <td class ="align-middle">{{ result.value }}</td>
-                
-            </tr>
-            
-                </tbody>
-            
-            </table>
+                                to not use map iterator that would cause errors  +  using slice().reverse() for correct order-->
+                    <tr *ngFor="let result of (result | keyvalue).slice().reverse()">
 
-            <table class="table table-bordered">
-            
+                        <td *ngIf="(result.value != 0)" class="table-primaryalign-middle text-end">{{ result.key | currency:'EUR' }}</td>
+                        <td *ngIf="(result.value != 0)" class="align-middle text-center">{{ result.value }}</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+            <br>
+        </div>
+        
+        <div class="col">
+            <table class="table table-borderless w-auto">
+
+                <thead class="table">
+                    <tr>
+                        <td> Differenz zu </td>
+                        <td *ngIf="(prevAmountHTML != null)"> {{prevAmountHTML}}€ </td>
+                    </tr>
+                </thead>
+            </table>
+            <table class="table table-bordered w-auto">
+
                 <thead class="table-dark">
                     <tr>
                         <th> Schein/Münze </th>
                         <th> Anzahl </th>
 
-                        
+
                     </tr>
                 </thead>
-            
+
                 <tbody>
-            <tr *ngFor="let denom of difference.entries()">
-                
-                <td class ="align-middle">{{ denom[0] | currency:'EUR' }}</td>
-                <td class ="align-middle">{{ denom[1] }}</td>
-                
-            </tr>
-            
+        
+                    
+                    <tr *ngFor="let difference of (difference | keyvalue).slice().reverse()">
+                        
+                            <td *ngIf="(difference.value != '0')" class="align-middle text-end">{{ difference.key | currency:'EUR' }}</td>
+                            <td *ngIf="(difference.value != '0')" class="align-middle text-center">{{ difference.value }}</td>
+                        
+                        
+
+                    </tr>
                 </tbody>
-            
+
             </table>
-
-            
-            
-
         </div>
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
