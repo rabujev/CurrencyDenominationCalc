@@ -40,14 +40,14 @@ export class FormService {
       let url = "http://localhost:5000";
       let dto = new Dto(total, result, previousResult, difference);
      
-      let response = this.httpClient.post<Dto>(url,dto).subscribe(
-        dto =>
-        {
-           result = dto.result;
-           previousResult = dto.previousResult;
-           difference = dto.difference;
-        }
-      ); 
+      //let response = this.httpClient.post<Dto>(url,dto).subscribe(
+      //  dto =>
+        //{
+          // result = dto.result;
+           //previousResult = dto.previousResult;
+           //difference = dto.difference;
+        //}
+      //); 
       
       
       // result = result of call . 0   etc.   so no need for return type 
@@ -91,7 +91,7 @@ export class FormService {
       if (diff > 0) {
         difference.set(key, ('+' + diff));
       } else if (diff < 0) {
-        difference.set(key, ('-' + diff));
+        difference.set(key, ('' + diff));
       } else if (diff == 0 && previousResult.get(key) != 0) {
         difference.set(key, (' ' + diff)); 
       }else if (diff == 0) {
