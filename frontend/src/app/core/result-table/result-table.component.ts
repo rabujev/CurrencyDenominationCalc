@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { DenomValues } from '../denom-values';
+import { DenomValues } from '../denom-values/denom-values';
 import { FormService } from 'src/app/services/form.service';
 
 
@@ -23,7 +23,6 @@ export class ResultTableComponent {
   
   result: Map<number, number> = new Map(this.denomValues.denomMap());
 
-  previousResult: Map<number, number> = new Map();
 
   previousAmount: number | null = null;
 
@@ -32,11 +31,13 @@ export class ResultTableComponent {
   difference: Map<number, string> = new Map();
 
 
-
+/**
+ * On Init : subscribing to 
+ */
   ngOnInit() {
     this.formService.submittedForm.subscribe( 
       submitted => {
-        this.formService.updateTables( submitted[0], this.previousAmount, this.result, this.previousResult, submitted[1], this.difference);
+        this.formService.updateTables( submitted[0], this.previousAmount, this.result, submitted[1], this.difference);
         this.prevAmountHTML = this.previousAmount;
         this.previousAmount = submitted[0];
       }

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { Dto } from '../common/dto';
+import { Dto } from '../dto/dto';
+
 
 
 @Injectable({
@@ -11,55 +12,66 @@ export class FormService {
 
   //this is a Subject (multicastable Observable) others can subscribe to receive its value whenever updated.
   submittedForm: Subject<[number, boolean]> = new Subject<[number, boolean]>;
-  //useBackend: boolean = true; //hopefully same instance injected everywhere    
+
+  backEndUrl: string = 'http://stueckelung.eu-north-1.elasticbeanstalk.com/api/processFormData';
+  //local : "http://localhost:5000/api/processFormData";
+
 
   constructor(private httpClient: HttpClient) { }
 
   //Fills result Map with the amounts of notes and coins 
 
   updateTables(total: number, previousTotal: number | null, result: Map<number, number>,
-    previousResult: Map<number, number>,
     useBackend: boolean,
-    difference: Map<number, string>) : void {
+    difference: Map<number, string>): void {
 
-      if (useBackend) {
-        this.calcBackend(total, result, previousResult, difference);
-      } else {
-        this.calcFrontend(total, previousTotal, result, previousResult, difference);
-        // xc console.log(previousTotal);
-      }
+    if (useBackend) {
+      this.calcBackend(total, previousTotal, result, difference);
+    } else {
+      this.calcFrontend(total, previousTotal, result, difference);
+
+    }
   }
 
   //Gives back result + difference  Maps in an array  from backend 
 
-  calcBackend(total: number, result: Map<number, number>,
-    previousResult: Map<number, number>,
+  calcBackend(total: number, previousTotal: number | null,
+    result: Map<number, number>,
     difference: Map<number, string>): void {
 
-      console.log("using backend");
-      let url = "http://localhost:5000";
-      let dto = new Dto(total, result, previousResult, difference);
-     
-      //let response = this.httpClient.post<Dto>(url,dto).subscribe(
-      //  dto =>
-        //{
-          // result = dto.result;
-           //previousResult = dto.previousResult;
-           //difference = dto.difference;
-        //}
-      //); 
-      
-      
-      // result = result of call . 0   etc.   so no need for return type 
-      // difference = result of call . 1
+    console.log("using backend");
+
+    let dto = new Dto(total, result);   // no need to send a difference
+
+    ;
+    //making post request to backend and setting table data with the response 
+    let response = this.httpClient.post<Dto>(this.backEndUrl, dto).subscribe(
+      dto => {
+        //setting result
+        let i: number = 0;
+        for (let key of result.keys()) {
+          result.set(key, dto.result[i]);
+          i++;
+        }
+
+        // Setting difference
+        if (previousTotal != null) {
+          i = 0;
+          for (let key of result.keys()) {
+            difference.set(key, dto.difference[i]);
+            i++;
+          }
+        }
+      }
+    );
+
   }
 
 
-  calcFrontend(total: number,previousTotal: number | null, result: Map<number, number>,
-    previousResult: Map<number, number>,
-    difference: Map<number, string>) : void  // : Map<any, any>[] lets try no return
+  calcFrontend(total: number, previousTotal: number | null, result: Map<number, number>,
+    difference: Map<number, string>): void  // : Map<any, any>[] lets try no return
   {
-    previousResult = new Map(result);   //current Result becomes past result
+    let previousResult = new Map(result);   //current Result becomes past result, useful for calculating difference later in this method
 
 
 
@@ -72,17 +84,13 @@ export class FormService {
       rest = rest % key;
     }
     //calculating the difference
-    if (previousTotal != null) 
+    if (previousTotal != null)
       this.calcFrontDifference(result, previousResult, difference);
-    
-
-
   }
 
   calcFrontDifference(result: Map<number, number>,
     previousResult: Map<number, number>,
-    difference: Map<number, string>) : void 
-  {
+    difference: Map<number, string>): void {
     console.log('dd')
     for (let key of result.keys()) {
 
@@ -93,8 +101,8 @@ export class FormService {
       } else if (diff < 0) {
         difference.set(key, ('' + diff));
       } else if (diff == 0 && previousResult.get(key) != 0) {
-        difference.set(key, (' ' + diff)); 
-      }else if (diff == 0) {
+        difference.set(key, (' ' + diff));
+      } else if (diff == 0) {
         difference.set(key, ('' + diff));
       }
 
