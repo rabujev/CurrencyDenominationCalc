@@ -12,14 +12,15 @@ export class FormService {
 
   //this is a Subject (multicastable Observable) others can subscribe to receive its value whenever updated.
   submittedForm: Subject<[number, boolean]> = new Subject<[number, boolean]>;
+  
+  backEndUrl: string = 'https://stueckelung-back-2db83e36cd11.herokuapp.com/api/processFormData';
 
-  backEndUrl: string = 'http://stueckelung.eu-north-1.elasticbeanstalk.com/api/processFormData';
   //local : "http://localhost:5000/api/processFormData";
 
 
   constructor(private httpClient: HttpClient) { }
 
-  //Fills result Map with the amounts of notes and coins 
+  //Fills result Map with the amounts of notes and coins by calling either backend or frontend processing depending on user choice
 
   updateTables(total: number, previousTotal: number | null, result: Map<number, number>,
     useBackend: boolean,
@@ -88,6 +89,7 @@ export class FormService {
       this.calcFrontDifference(result, previousResult, difference);
   }
 
+  //calculates the difference between the present input and past input
   calcFrontDifference(result: Map<number, number>,
     previousResult: Map<number, number>,
     difference: Map<number, string>): void {
